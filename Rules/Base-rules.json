@@ -1,615 +1,615 @@
 {
-  "pbiEntries": [
-    {
-      "name": "reportLayout",
-      "pbixEntryPath": "Report/Layout",
-      "pbipEntryPath": "report.json",
-      "contentType": "json",
-      "codepage": 1200,
-      "rules": [
-        {
-          "id": "REMOVE_UNUSED_CUSTOM_VISUALS",
-          "name": "Remove custom visuals which are not used in the report.",
-          "description": "Returns an array of custom visual names to be removed if any. To disable this rule, mark it as disabled in the base rules file.",
-          "logType": "warning",
-          "disabled": false,
-          "path": "$",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "filter": [
-                {
-                  "map": [
-                    {
-                      "var": "customvis"
-                    },
-                    {
-                      "if": [
-                        {
-                          "==": [
-                            {
-                              "strcontains": [
-                                {
-                                  "tostring": [
-                                    {
-                                      "var": "pages"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "var": ""
-                                }
-                              ]
-                            },
-                            0
-                          ]
-                        },
-                        {
-                          "var": ""
-                        },
-                        ""
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "!!": [
-                    {
-                      "var": ""
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "customvis": "/publicCustomVisuals",
-              "pages": "/sections"
-            },
-            []
-          ]
-        },
-        {
-          "id": "REDUCE_VISUALS_ON_PAGE",
-          "name": "Reduce the number of visible visuals on the page",
-          "description": "Reports a test fail if the rule's maximum number of visible visuals on the page is exceeded. By default the base rules file specifies 20 as the maximum, set the paramMaxVisualsPerPage parameter to change this. To disable this rule, mark it as disabled in the base rules file.",
-          "logType": "warning",
-          "disabled": false,
-          "forEachPath": "$.sections[*]",
-          "forEachPathName": "$.name",
-          "forEachPathDisplayName": "$.displayName",
-          "path": "$.visualContainers[*].config",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "<=": [
-                {
-                  "count": [
-                    {
-                      "filter": [
-                        {
-                          "var": "visuals"
-                        },
-                        {
-                          "and": [
-                            {
-                              "!=": [
-                                {
-                                  "var": "singleVisual.display.mode"
-                                },
-                                "hidden"
-                              ]
-                            },
-                            {
-                              "!": [
-                                {
-                                  "in": [
-                                    {
-                                      "var": "singleVisual.visualType"
-                                    },
-                                    [
-                                      "shape",
-                                      "slicer",
-                                      "actionButton",
-                                      "textbox"
-                                    ]
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "var": "paramMaxVisualsPerPage"
-                }
-              ]
-            },
-            {
-              "visuals": ".",
-              "paramMaxVisualsPerPage": 20
-            },
-            true
-          ]
-        },
-        {
-          "id": "REDUCE_OBJECTS_WITHIN_VISUALS",
-          "name": "Reduce the number of objects within visuals",
-          "description": "Reports a test fail if the rule's maximum number of objects within visuals on a page is exceeded. An object is a data field that is assigned to a visual. By default, the base rules file specifies 6 as the maximum objects within a visual. To disable this rule, mark it as disabled in the base rules file.",
-          "logType": "warning",
-          "disabled": false,
-          "forEachPath": "$.sections[*]",
-          "forEachPathName": "$.name",
-          "forEachPathDisplayName": "$.displayName",
-          "path": "$.visualContainers[*].config",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "map": [
-                {
-                  "filter": [
-                    {
-                      "var": "q"
-                    },
-                    {
-                      ">": [
-                        {
-                          "count": [
-                            {
-                              "var": "singleVisual.prototypeQuery.Select"
-                            }
-                          ]
-                        },
-                        6
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "var": "name"
-                }
-              ]
-            },
-            {
-              "q": "."
-            },
-            []
-          ]
-        },
-        {
-          "id": "REDUCE_TOPN_FILTERS",
-          "name": "Reduce usage of TopN filtering visuals by page",
-          "description": "Reports a test fail if the rule's maximum number of visuals using TopN filtering on a the page is exceeded. By default the base rules file specifies 4 as the maximum objects within a visual, set the paramMaxTopNFilteringPerPage to change this. To disable this rule, mark it as disabled in the base rules file.",
-          "logType": "warning",
-          "disabled": false,
-          "forEachPath": "$.sections[*]",
-          "forEachPathName": "$.name",
-          "forEachPathDisplayName": "$.displayName",
-          "path": "$.visualContainers[*].filters",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "<=": [
-                {
-                  "count": [
-                    {
-                      "filter": [
-                        {
-                          "var": "f"
-                        },
-                        {
-                          "some": [
-                            {
-                              "var": ""
-                            },
-                            {
-                              "==": [
-                                {
-                                  "var": "type"
-                                },
-                                "TopN"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "var": "paramMaxTopNFilteringPerPage"
-                }
-              ]
-            },
-            {
-              "f": ".",
-              "paramMaxTopNFilteringPerPage": 4
-            },
-            true
-          ]
-        },
-        {
-          "id": "REDUCE_ADVANCED_FILTERS",
-          "name": "Reduce usage of Advanced filtering visuals by page",
-          "description": "Reports a test fail if the rule's maximum number of visuals using Advanced filtering on a the page is exceeded. By default, the base rules file specifies 4 as the maximum objects within a visual, set the paramMaxAdvancedFilteringVisualsPerPage parameter value to change this. To disable this rule, mark it as disabled in the base rules file.",
-          "logType": "warning",
-          "disabled": false,
-          "forEachPath": "$.sections[*]",
-          "forEachPathName": "$.name",
-          "forEachPathDisplayName": "$.displayName",
-          "path": "$.visualContainers[*].filters",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "<=": [
-                {
-                  "count": [
-                    {
-                      "filter": [
-                        {
-                          "var": "f"
-                        },
-                        {
-                          "some": [
-                            {
-                              "var": ""
-                            },
-                            {
-                              "==": [
-                                {
-                                  "var": "type"
-                                },
-                                "Advanced"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "var": "paramMaxAdvancedFilteringVisualsPerPage"
-                }
-              ]
-            },
-            {
-              "f": ".",
-              "paramMaxAdvancedFilteringVisualsPerPage": 4
-            },
-            true
-          ]
-        },
-        {
-          "id": "REDUCE_PAGES",  
-          "name": "Reduce number of pages per report",
-          "description": "Reports a test fail if the rule's maximum number of pages per report is exceeded. By default, the base rules file specifies 10 as the maximum number of pages. Set the paramMaxNumberOfPagesPerReport parameter to change this. To disable this rule, mark it as disabled in the base rules file.",
-          "logType": "warning",
-          "disabled": false,
-          "path": "$.sections",
-          "pathErrorWhenNoMatch": true,
-          "test": [
-            {
-              "<=": [
-                {
-                  "count": [
-                    {
-                      "var": "s"
-                    }
-                  ]
-                },
-                {
-                  "var": "paramMaxNumberOfPagesPerReport"
-                }
-              ]
-            },
-            {
-              "s": ".",
-              "paramMaxNumberOfPagesPerReport": 10
-            },
-            true
-          ]
-        },
-        {
-          "id": "AVOID_SHOW_ITEMS_WITH_NO_DATA",
-          "name": "Avoid setting ‘Show items with no data’ on columns",
-          "description": "Returns an array of visual names which have the option ‘Show items with no data’ enabled on one or more columns. To disable this rule, mark it as disabled in the base rules file.",
-          "logType": "warning",
-          "disabled": false,
-          "forEachPath": "$.sections[*]",
-          "forEachPathName": "$.name",
-          "forEachPathDisplayName": "$.displayName",
-          "path": "$.visualContainers[*].config",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "map": [
-                {
-                  "filter": [
-                    {
-                      "map": [
-                        {
-                          "var": "c"
-                        },
-                        [
+    "pbiEntries": [
+      {
+        "name": "reportLayout",
+        "pbixEntryPath": "Report/Layout",
+        "pbipEntryPath": "report.json",
+        "contentType": "json",
+        "codepage": 1200,
+        "rules": [
+          {
+            "id": "REMOVE_UNUSED_CUSTOM_VISUALS",
+            "name": "Eliminar visualizaciones personalizadas que no se utilizan en el informe",
+            "description": "Devuelve una matriz de nombres de visualizaciones personalizadas que deben eliminarse, si las hay. Para desactivar esta regla, márcala como deshabilitada en el archivo de reglas base.",
+            "logType": "warning",
+            "disabled": false,
+            "path": "$",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "filter": [
+                  {
+                    "map": [
+                      {
+                        "var": "customvis"
+                      },
+                      {
+                        "if": [
                           {
-                            "var": "name"
+                            "==": [
+                              {
+                                "strcontains": [
+                                  {
+                                    "tostring": [
+                                      {
+                                        "var": "pages"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "var": ""
+                                  }
+                                ]
+                              },
+                              0
+                            ]
                           },
                           {
-                            "!!": [
+                            "var": ""
+                          },
+                          ""
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "!!": [
+                      {
+                        "var": ""
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "customvis": "/publicCustomVisuals",
+                "pages": "/sections"
+              },
+              []
+            ]
+          },
+          {
+            "id": "REDUCE_VISUALS_ON_PAGE",
+            "name": "Reduce el número de visualizaciones visibles en la página",
+            "description": "Informa una falla de prueba si se excede el número máximo de visualizaciones visibles en la página. De forma predeterminada, el archivo de reglas base especifica 20 como máximo, establezca el parámetro paramMaxVisualsPerPage para cambiar esto. Para desactivar esta regla, márquela como deshabilitada en el archivo de reglas base.",
+            "logType": "warning",
+            "disabled": false,
+            "forEachPath": "$.sections[*]",
+            "forEachPathName": "$.name",
+            "forEachPathDisplayName": "$.displayName",
+            "path": "$.visualContainers[*].config",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "<=": [
+                  {
+                    "count": [
+                      {
+                        "filter": [
+                          {
+                            "var": "visuals"
+                          },
+                          {
+                            "and": [
                               {
-                                "var": "singleVisual.showAllRoles"
+                                "!=": [
+                                  {
+                                    "var": "singleVisual.display.mode"
+                                  },
+                                  "hidden"
+                                ]
+                              },
+                              {
+                                "!": [
+                                  {
+                                    "in": [
+                                      {
+                                        "var": "singleVisual.visualType"
+                                      },
+                                      [
+                                        "shape",
+                                        "slicer",
+                                        "actionButton",
+                                        "textbox"
+                                      ]
+                                    ]
+                                  }
+                                ]
                               }
                             ]
                           }
                         ]
-                      ]
-                    },
-                    {
-                      "var": 1
-                    }
-                  ]
-                },
-                {
-                  "var": 0
-                }
-              ]
-            },
-            {
-              "c": "."
-            },
-            []
-          ]
-        },
-        {
-          "id": "HIDE_TOOLTIP_DRILLTROUGH_PAGES",
-          "name": "Tooltip and Drillthrough pages should be hidden",
-          "description": "Reports a test fail if a page of type Tooltip or Drillthrough is visible. To disable this rule, mark it as disabled in the base rules file.",
-          "logType": "warning",
-          "disabled": false,
-          "forEachPath": "$.sections[*]",
-          "forEachPathName": "$.name",
-          "forEachPathDisplayName": "$.displayName",
-          "path": "$.config",
-          "pathErrorWhenNoMatch": true,
-          "test": [
-            {
-              "none": [
-                {
-                  "var": "c"
-                },
-                {
-                  "and": [
-                    {
-                      "in": [
-                        {
-                          "var": "type"
-                        },
-                        [
-                          1,
-                          2
+                      }
+                    ]
+                  },
+                  {
+                    "var": "paramMaxVisualsPerPage"
+                  }
+                ]
+              },
+              {
+                "visuals": ".",
+                "paramMaxVisualsPerPage": 20
+              },
+              true
+            ]
+          },
+          {
+            "id": "REDUCE_OBJECTS_WITHIN_VISUALS",
+            "name": "Reducir el número de objetos dentro de las visualizaciones",
+            "description": "Informa una falla de prueba si se excede el número máximo de objetos dentro de las visualizaciones en una página. Un objeto es un campo de datos asignado a una visualización. De forma predeterminada, el archivo de reglas base especifica 6 como máximo de objetos dentro de una visualización. Para desactivar esta regla, márcala como deshabilitada en el archivo de reglas base.",
+            "logType": "warning",
+            "disabled": false,
+            "forEachPath": "$.sections[*]",
+            "forEachPathName": "$.name",
+            "forEachPathDisplayName": "$.displayName",
+            "path": "$.visualContainers[*].config",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "map": [
+                  {
+                    "filter": [
+                      {
+                        "var": "q"
+                      },
+                      {
+                        ">": [
+                          {
+                            "count": [
+                              {
+                                "var": "singleVisual.prototypeQuery.Select"
+                              }
+                            ]
+                          },
+                          6
                         ]
-                      ]
-                    },
-                    {
-                      "!=": [
-                        {
-                          "var": "visibility"
-                        },
-                        1
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "c": "."
-            },
-            true
-          ]
-        },
-        {
-          "id": "ENSURE_THEME_COLOURS",
-          "name": "Ensure charts use theme colours",
-          "description": "Check that charts (excluding textboxes) avoid custom colours and use theme colours instead. To disable this rule, mark it as disabled in the base rules file.",
-          "disabled": false,
-          "logType": "error",
-          "forEachPath": "$.sections[*]",
-          "forEachPathName": "$.name",
-          "forEachPathDisplayName": "$.displayName",
-          "path": "$.visualContainers[*].config",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "map": [
-                {
-                  "filter": [
-                    {
-                      "var": "visualsConfigArray"
-                    },
-                    {
-                      "and": [
-                        {
-                          "!": [
-                            {
-                              "in": [
-                                {
-                                  "var": "singleVisual.visualType"
-                                },
-                                [
-                                  "textbox"
+                      }
+                    ]
+                  },
+                  {
+                    "var": "name"
+                  }
+                ]
+              },
+              {
+                "q": "."
+              },
+              []
+            ]
+          },
+          {
+            "id": "REDUCE_TOPN_FILTERS",
+            "name": "Reducir el uso de visualizaciones de filtrado TopN por página",
+            "description": "Informa una falla de prueba si se excede el número máximo de visualizaciones que utilizan el filtrado TopN en la página. De forma predeterminada, el archivo de reglas base especifica 4 como el máximo de objetos dentro de una visual, establezca el parámetro paramMaxTopNFilteringPerPage para cambiar esto. Para desactivar esta regla, márquela como deshabilitada en el archivo de reglas base.",
+            "logType": "warning",
+            "disabled": false,
+            "forEachPath": "$.sections[*]",
+            "forEachPathName": "$.name",
+            "forEachPathDisplayName": "$.displayName",
+            "path": "$.visualContainers[*].filters",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "<=": [
+                  {
+                    "count": [
+                      {
+                        "filter": [
+                          {
+                            "var": "f"
+                          },
+                          {
+                            "some": [
+                              {
+                                "var": ""
+                              },
+                              {
+                                "==": [
+                                  {
+                                    "var": "type"
+                                  },
+                                  "TopN"
                                 ]
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "strcontains": [
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "var": "paramMaxTopNFilteringPerPage"
+                  }
+                ]
+              },
+              {
+                "f": ".",
+                "paramMaxTopNFilteringPerPage": 4
+              },
+              true
+            ]
+          },
+          {
+            "id": "REDUCE_ADVANCED_FILTERS",
+            "name": "Reducir el uso de visualizaciones de filtrado avanzado por página",
+            "description": "Informa una falla de prueba si se excede el número máximo de visualizaciones que utilizan el filtrado avanzado en la página. De forma predeterminada, el archivo de reglas base especifica 4 como el máximo de objetos dentro de una visual, establezca el valor del parámetro paramMaxAdvancedFilteringVisualsPerPage para cambiar esto. Para desactivar esta regla, márquela como deshabilitada en el archivo de reglas base.",
+            "logType": "warning",
+            "disabled": false,
+            "forEachPath": "$.sections[*]",
+            "forEachPathName": "$.name",
+            "forEachPathDisplayName": "$.displayName",
+            "path": "$.visualContainers[*].filters",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "<=": [
+                  {
+                    "count": [
+                      {
+                        "filter": [
+                          {
+                            "var": "f"
+                          },
+                          {
+                            "some": [
+                              {
+                                "var": ""
+                              },
+                              {
+                                "==": [
+                                  {
+                                    "var": "type"
+                                  },
+                                  "Advanced"
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "var": "paramMaxAdvancedFilteringVisualsPerPage"
+                  }
+                ]
+              },
+              {
+                "f": ".",
+                "paramMaxAdvancedFilteringVisualsPerPage": 4
+              },
+              true
+            ]
+          },
+          {
+            "id": "REDUCE_PAGES",  
+            "name": "Reducir el número de páginas por informe",
+            "description": "Informa una falla de prueba si se excede el número máximo de páginas por informe establecido en la regla. De forma predeterminada, el archivo de reglas base especifica 10 como máximo de páginas. Establezca el parámetro paramMaxNumberOfPagesPerReport para cambiar esto. Para desactivar esta regla, márquela como deshabilitada en el archivo de reglas base.",
+            "logType": "warning",
+            "disabled": false,
+            "path": "$.sections",
+            "pathErrorWhenNoMatch": true,
+            "test": [
+              {
+                "<=": [
+                  {
+                    "count": [
+                      {
+                        "var": "s"
+                      }
+                    ]
+                  },
+                  {
+                    "var": "paramMaxNumberOfPagesPerReport"
+                  }
+                ]
+              },
+              {
+                "s": ".",
+                "paramMaxNumberOfPagesPerReport": 10
+              },
+              true
+            ]
+          },
+          {
+            "id": "AVOID_SHOW_ITEMS_WITH_NO_DATA",
+            "name": "Evitar establecer 'Mostrar elementos sin datos' en columnas",
+            "description": "Devuelve una matriz de nombres de visualizaciones que tienen la opción 'Mostrar elementos sin datos' habilitada en una o más columnas. Para desactivar esta regla, márquela como deshabilitada en el archivo de reglas base.",
+            "logType": "warning",
+            "disabled": false,
+            "forEachPath": "$.sections[*]",
+            "forEachPathName": "$.name",
+            "forEachPathDisplayName": "$.displayName",
+            "path": "$.visualContainers[*].config",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "map": [
+                  {
+                    "filter": [
+                      {
+                        "map": [
+                          {
+                            "var": "c"
+                          },
+                          [
                             {
-                              "tostring": [
+                              "var": "name"
+                            },
+                            {
+                              "!!": [
                                 {
-                                  "var": ""
+                                  "var": "singleVisual.showAllRoles"
                                 }
                               ]
-                            },
-                            "#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "var": "name"
-                }
-              ]
-            },
-            {
-              "visualsConfigArray": "."
-            },
-            []
-          ]
-        },
-        {
-          "id": "ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY",
-          "name": "Ensure pages do not scroll vertically",
-          "description": "Returns an array of visible page names with a height great than 720px. Modify the rule parameter value if a different maximum height value is required. To disable this rule, mark it as disabled in the base rules file.",
-          "disabled": false,
-          "logType": "warning",
-          "path": "$.sections[*]",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "map": [
-                {
-                  "filter": [
-                    {
-                      "var": "pageArray"
-                    },
-                    {
-                      "and": [
-                        {
-                          ">": [
-                            {
-                              "var": "height"
-                            },
-                            {
-                              "var": "paramMaxAllowedPageHeight"
                             }
                           ]
-                        },
-                        {
-                          "!=": [
-                            {
-                              "drillvar": "config>visibility"
-                            },
-                            1
+                        ]
+                      },
+                      {
+                        "var": 1
+                      }
+                    ]
+                  },
+                  {
+                    "var": 0
+                  }
+                ]
+              },
+              {
+                "c": "."
+              },
+              []
+            ]
+          },
+          {
+            "id": "HIDE_TOOLTIP_DRILLTROUGH_PAGES",
+            "name": "Las páginas de información sobre herramientas y de navegación deben estar ocultas",
+            "description": "Informa una falla de prueba si una página de tipo Información sobre herramientas o Navegación está visible. Para desactivar esta regla, márquela como deshabilitada en el archivo de reglas base.",
+            "logType": "warning",
+            "disabled": false,
+            "forEachPath": "$.sections[*]",
+            "forEachPathName": "$.name",
+            "forEachPathDisplayName": "$.displayName",
+            "path": "$.config",
+            "pathErrorWhenNoMatch": true,
+            "test": [
+              {
+                "none": [
+                  {
+                    "var": "c"
+                  },
+                  {
+                    "and": [
+                      {
+                        "in": [
+                          {
+                            "var": "type"
+                          },
+                          [
+                            1,
+                            2
                           ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "var": "displayName"
-                }
-              ]
-            },
-            {
-              "pageArray": ".",
-              "paramMaxAllowedPageHeight": 720
-            },
-            []
-          ]
-        },
-        {
-          "id": "ENSURE_ALTTEXT",
-          "name": "Ensure alternativeText has been defined for all visuals",
-          "description": "Alt-text is required for screen readers",
-          "disabled": true,
-          "logType": "warning",
-          "forEachPath": "$.sections[*]",
-          "forEachPathName": "$.name",
-          "forEachPathDisplayName": "$.displayName",
-          "path": "$.visualContainers[*].config",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            {
-              "map": [
-                {
-                  "filter": [
-                    {
-                      "var": "visualsConfigArray"
-                    },
-                    {
-                      "and": [
-                        {
-                          "!": [
-                            {
-                              "in": [
-                                {
-                                  "var": "singleVisual.visualType"
-                                },
-                                [
-                                  "shape"
-                                ]
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "none": [
-                            {
-                              "var": "singleVisual.vcObjects.general"
-                            },
-                            {
-                              "or": [
-                                {
-                                  "!!": [ { "var": "properties.altText.expr.Aggregation" } ]
-                                },
-                                {
-                                  "!=": [
-                                    { "var": "properties.altText.expr.Literal.Value" },
-                                    "''"
+                        ]
+                      },
+                      {
+                        "!=": [
+                          {
+                            "var": "visibility"
+                          },
+                          1
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "c": "."
+              },
+              true
+            ]
+          },
+          {
+            "id": "ENSURE_THEME_COLOURS",
+            "name": "Asegurar que los gráficos utilicen colores del tema",
+            "description": "Verificar que los gráficos (excluyendo los cuadros de texto) eviten los colores personalizados y utilicen los colores del tema en su lugar. Para desactivar esta regla, márquela como deshabilitada en el archivo de reglas base.",
+            "disabled": false,
+            "logType": "error",
+            "forEachPath": "$.sections[*]",
+            "forEachPathName": "$.name",
+            "forEachPathDisplayName": "$.displayName",
+            "path": "$.visualContainers[*].config",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "map": [
+                  {
+                    "filter": [
+                      {
+                        "var": "visualsConfigArray"
+                      },
+                      {
+                        "and": [
+                          {
+                            "!": [
+                              {
+                                "in": [
+                                  {
+                                    "var": "singleVisual.visualType"
+                                  },
+                                  [
+                                    "textbox"
                                   ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "var": "name"
-                }
-              ]
-            },
-            {
-              "visualsConfigArray": "."
-            },
-            []
-          ]
-        },
-        {
-          "id": "template",
-          "name": "Rule Template",
-          "description": "Rule template",
-          "disabled": true,
-          "logType": "warning",
-          "path": "$",
-          "pathErrorWhenNoMatch": false,
-          "test": [
-            true,
-            {},
-            true
-          ]
-        }
-      ]
-    }
-  ]
-}
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "strcontains": [
+                              {
+                                "tostring": [
+                                  {
+                                    "var": ""
+                                  }
+                                ]
+                              },
+                              "#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "var": "name"
+                  }
+                ]
+              },
+              {
+                "visualsConfigArray": "."
+              },
+              []
+            ]
+          },
+          {
+            "id": "ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY",
+            "name": "Asegurar que las páginas no se desplacen verticalmente",
+            "description": "Devuelve una matriz de nombres de páginas visibles con una altura mayor a 720px. Modifique el valor del parámetro de regla si se requiere un valor máximo de altura diferente. Para desactivar esta regla, márquela como deshabilitada en el archivo de reglas base.",
+            "disabled": false,
+            "logType": "warning",
+            "path": "$.sections[*]",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "map": [
+                  {
+                    "filter": [
+                      {
+                        "var": "pageArray"
+                      },
+                      {
+                        "and": [
+                          {
+                            ">": [
+                              {
+                                "var": "height"
+                              },
+                              {
+                                "var": "paramMaxAllowedPageHeight"
+                              }
+                            ]
+                          },
+                          {
+                            "!=": [
+                              {
+                                "drillvar": "config>visibility"
+                              },
+                              1
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "var": "displayName"
+                  }
+                ]
+              },
+              {
+                "pageArray": ".",
+                "paramMaxAllowedPageHeight": 720
+              },
+              []
+            ]
+          },
+          {
+            "id": "ENSURE_ALTTEXT",
+            "name": "Asegurar que se haya definido alternativeText para todas las visualizaciones",
+            "description": "Se requiere alternativeText para lectores de pantalla",
+            "disabled": true,
+            "logType": "warning",
+            "forEachPath": "$.sections[*]",
+            "forEachPathName": "$.name",
+            "forEachPathDisplayName": "$.displayName",
+            "path": "$.visualContainers[*].config",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              {
+                "map": [
+                  {
+                    "filter": [
+                      {
+                        "var": "visualsConfigArray"
+                      },
+                      {
+                        "and": [
+                          {
+                            "!": [
+                              {
+                                "in": [
+                                  {
+                                    "var": "singleVisual.visualType"
+                                  },
+                                  [
+                                    "shape"
+                                  ]
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "none": [
+                              {
+                                "var": "singleVisual.vcObjects.general"
+                              },
+                              {
+                                "or": [
+                                  {
+                                    "!!": [ { "var": "properties.altText.expr.Aggregation" } ]
+                                  },
+                                  {
+                                    "!=": [
+                                      { "var": "properties.altText.expr.Literal.Value" },
+                                      "''"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "var": "name"
+                  }
+                ]
+              },
+              {
+                "visualsConfigArray": "."
+              },
+              []
+            ]
+          },
+          {
+            "id": "template",
+            "name": "Plantilla de regla",
+            "description": "Plantilla de regla",
+            "disabled": true,
+            "logType": "warning",
+            "path": "$",
+            "pathErrorWhenNoMatch": false,
+            "test": [
+              true,
+              {},
+              true
+            ]
+          }
+        ]
+      }
+    ]
+  }
