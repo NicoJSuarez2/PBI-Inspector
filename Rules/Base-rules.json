@@ -129,7 +129,7 @@
             },
             {
               "visuals": ".",
-              "paramMaxVisualsPerPage": 20
+              "paramMaxVisualsPerPage": 30
             },
             true
           ]
@@ -520,7 +520,7 @@
             },
             {
               "pageArray": ".",
-              "paramMaxAllowedPageHeight": 720
+              "paramMaxAllowedPageHeight": 720  
             },
             []
           ]
